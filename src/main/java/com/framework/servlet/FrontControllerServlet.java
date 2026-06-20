@@ -1,8 +1,11 @@
-package src.main.java.com.framework.servlet;
+package com.framework.servlet;
 
 import java.io.IOException;
+
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class FrontControllerServlet extends HttpServlet {
 
