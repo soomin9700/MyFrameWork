@@ -1,7 +1,6 @@
 package com.framework.core;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,8 +9,7 @@ import com.framework.annotation.UrlMapping;
 
 public class RouteResolver {
 
-    public static Map<RouteKey, RouteHandler> resoudre(String packageControllers) throws Exception {
-        Map<RouteKey, RouteHandler> table = new HashMap<>();
+    public static void remplir(String packageControllers, Map<RouteKey, RouteHandler> table) throws Exception {
 
         List<Class<?>> classes = PackageScanner.scanPackage(packageControllers);
 
@@ -29,7 +27,7 @@ public class RouteResolver {
                 }
 
                 // Pour chacune, les methodes annotees @UrlMapping
-
+                System.out.println("Methode trouvee : " + methode.getName());
                 UrlMapping infoUrl = methode.getAnnotation(UrlMapping.class);
                 RouteKey cle = new RouteKey(infoUrl.value(), infoUrl.method());
 
@@ -41,7 +39,5 @@ public class RouteResolver {
                 table.put(cle, new RouteHandler(classe.getName(), methode.getName()));
             }
         }
-
-        return table;
     }
 }
