@@ -1,58 +1,19 @@
 package com.framework.servlet;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import com.framework.annotation.Controller;
-import com.framework.core.AnnotationChecker;
 import com.framework.core.MethodInvoker;
-import com.framework.core.PackageScanner;
 import com.framework.core.RouteHandler;
 import com.framework.core.RouteKey;
-import com.framework.core.RouteResolver;
 
-import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class FrontControllerServlet extends HttpServlet {
-
-    private List<String> listController = new ArrayList<>();
-    private Map<RouteKey, RouteHandler> routeTable;
-
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-
-        String packageControllers = config.getInitParameter("controllerPackage");
-
-        try {
-            List<Class<?>> classesDuPackage = PackageScanner.scanPackage(packageControllers);
-
-            for (Class<?> classe : classesDuPackage) {
-                if (AnnotationChecker.surClasse(classe, Controller.class)) {
-                    listController.add(classe.getName());
-                }
-            }
-
-            routeTable = RouteResolver.resoudre(packageControllers);
-
-            System.out.println("=== Initialisation du FrontController ===");
-            System.out.println("Controllers trouves : " + listController.size());
-            System.out.println("Routes trouvees : " + routeTable.size());
-
-            for (Map.Entry<RouteKey, RouteHandler> entree : routeTable.entrySet()) {
-                System.out.println(" -> " + entree.getKey() + " => " + entree.getValue());
-            }
-
-        } catch (Exception e) {
-            throw new ServletException("Impossible d'initialiser le FrontController", e);
-        }
-    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -66,10 +27,28 @@ public class FrontControllerServlet extends HttpServlet {
         processRequest(request, response);
     }
 
+    @SuppressWarnings("unchecked")
     private void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("text/plain");
+
+        ServletContext context = getServletContext();
+        Map<RouteKey, RouteHandler> routeTable = (Map<RouteKey, RouteHandler>) context.getAttribute("routeTable");
+
+        if (routeTable == null) {
+            throw new ServletException("routeTable non trouvee dans le context : le listener a-t-il bien tourne ?");
+        }
+
+        lireMethodeEtClasse(request, response, routeTable);
+    }
+
+    /**
+     * Recherche la route correspondant a la requete dans la map fournie,
+     * invoque la methode trouvee, et ecrit le resultat dans la reponse.
+     */
+    private void lireMethodeEtClasse(HttpServletRequest request, HttpServletResponse response,
+            Map<RouteKey, RouteHandler> routeTable) throws ServletException, IOException {
 
         String url = request.getRequestURI().substring(request.getContextPath().length());
         RouteKey cleDemandee = new RouteKey(url, request.getMethod());
