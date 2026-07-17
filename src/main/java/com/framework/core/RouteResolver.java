@@ -10,8 +10,8 @@ import com.framework.annotation.UrlMapping;
 
 public class RouteResolver {
 
-    public static Map<String, RouteHandler> resoudre(String packageControllers) throws Exception {
-        Map<String, RouteHandler> table = new HashMap<>();
+    public static Map<RouteKey, RouteHandler> resoudre(String packageControllers) throws Exception {
+        Map<RouteKey, RouteHandler> table = new HashMap<>();
 
         List<Class<?>> classes = PackageScanner.scanPackage(packageControllers);
 
@@ -31,14 +31,14 @@ public class RouteResolver {
                 // Pour chacune, les methodes annotees @UrlMapping
 
                 UrlMapping infoUrl = methode.getAnnotation(UrlMapping.class);
-                String url = infoUrl.value();
+                RouteKey cle = new RouteKey(infoUrl.value(), infoUrl.method());
 
-                if (table.containsKey(url)) {
-                    throw new Exception("Cette url est deja associee a une methode : " + url);
+                if (table.containsKey(cle)) {
+                    throw new Exception("Url deja prise : " + cle);
                 }
 
                 // Retourne une table url -> RouteHandler.
-                table.put(url, new RouteHandler(classe.getName(), methode.getName()));
+                table.put(cle, new RouteHandler(classe.getName(), methode.getName()));
             }
         }
 
