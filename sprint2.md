@@ -1,14 +1,14 @@
-iza no methode sy controller associé @ le url?
+qui sont les methode et controller associé @ le url?
 
 creer une annotation associe @ methode
-annotation: manana variable
+annotation: possede du variable
 
 
 test:
 Objectif:
-- class annoté @annotaion antsika
+- class annoté avec notre @annotation 
 - methode: annoté annotation avec parametre (ex:@urlMapping("/emp/list)) => url: /emp/list
-- Rehefa hita daholo ny controller avec l annotation, dia tadiavina oe aiza 
+- Quand on trouve toutes les conntroller annoté avec notre annotation, on chereche, c est ou?
 
 
 
