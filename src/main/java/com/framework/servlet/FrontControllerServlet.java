@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.framework.annotation.Controller;
 import com.framework.core.AnnotationChecker;
+import com.framework.core.MethodInvoker;
 import com.framework.core.PackageScanner;
 import com.framework.core.RouteHandler;
 import com.framework.core.RouteKey;
@@ -66,7 +67,7 @@ public class FrontControllerServlet extends HttpServlet {
     }
 
     private void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+            throws ServletException, IOException {
 
         response.setContentType("text/plain");
 
@@ -84,8 +85,16 @@ public class FrontControllerServlet extends HttpServlet {
             return;
         }
 
-        response.getWriter().println("Route trouvee  : " + cleDemandee);
-        response.getWriter().println("Controller     : " + handler.getControllerClassName());
-        response.getWriter().println("Methode        : " + handler.getMethodName());
+        try {
+            Object resultat = MethodInvoker.invoquer(handler);
+
+            response.getWriter().println("Route executee : " + cleDemandee);
+            response.getWriter().println("Controller     : " + handler.getControllerClassName());
+            response.getWriter().println("Methode        : " + handler.getMethodName());
+            response.getWriter().println("Resultat       : " + resultat);
+
+        } catch (Exception e) {
+            throw new ServletException("Erreur lors de l'invocation de " + handler, e);
+        }
     }
 }
